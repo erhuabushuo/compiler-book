@@ -208,3 +208,43 @@ struct token {
 }
 ```
 
+The Lexer works via regular expressions so you can define what a token
+would look like the taditional way this function is defined is:
+
+```c
+struct lexer_state {
+	char * buffer;
+	size_t offset, size;
+};
+
+struct token current_token;
+struct lexer_state lexer;
+
+void yylex (void) {
+  while (lexer.offset < lexer.size)
+  {
+	char c = lexer.buffer [lexer.offset];
+	
+	if (c == '=') {
+		current_token.T = EQUALS;
+		break;
+	}
+	else if (c == integer) {
+		read_integer (&lexer, &current_token);
+		break;
+	}
+	else if (c == character) {
+		read_name (..)
+		break;
+	}
+	
+	lexer.offset++;
+  }
+  current_token.T = EOF;
+}
+```
+
+So this means you can keep calling the yylex function and read the
+current token afer it returns. If you setup the buffer with an input
+string of source code this function will return each token and ignore
+white space since this is not a lexical token that matters.
