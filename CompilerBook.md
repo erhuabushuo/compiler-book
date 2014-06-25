@@ -54,9 +54,7 @@ def interactive_shell (prompt='>>> '):
 ```
 
 Now we have a shell to work with, lets look at sample input strings
-and from first principles figure out what we need to do.
-
-If i enter
+and from first principles figure out what we need to do. If i enter
 
 ```python
 >>> x = 1 + 1
@@ -88,12 +86,12 @@ into a tree which represents the syntax in memory. So for example
 ```
 # x = 1 + 2 - 3
     =
-  /  \
-x     +
-     /  \
-	1    -
-	    /  \
-		2   3
+  /   \
+ x     +
+      /  \
+     1    -
+         /  \
+        2    3
 ```
 
 For me once i understood this concept everything can fall into place
@@ -139,11 +137,11 @@ expression:
 This will create:
 
 ```c
-struct syntax_node * integer_1 = calloc (1, sizeof (struct syntax_node));
-struct syntax_node * integer_2 = calloc (1, sizeof (struct syntax_node));
-struct syntax_node * name = calloc (1, sizeof (struct syntax_node))
-struct syntax_node * addition = calloc (1, sizeof (struct syntax_node));
-struct syntax_node * assignment = calloc (1, sizeof (struct syntax_node));
+struct syntax_node * integer_1;
+struct syntax_node * integer_2;
+struct syntax_node * name;
+struct syntax_node * addition;
+struct syntax_node * assignment;
 
 integer_1->value.T = INTEGER;
 integer_1->value.data.integer = 1;
@@ -153,6 +151,10 @@ integer_2->value.data.integer = 2;
 
 name->value.T = NAME;
 name->value.data.name = 'x';
+
+addition->value.T = PLUS;
+addition->lhs = integer_1;
+addition->rhs = integer_2;
 
 assignment->value.T = EQUALS;
 assignment->lhs = name;
@@ -186,7 +188,22 @@ The lexer would return:
 3. INTEGER (1)
 4. PLUS
 5. INTEGER (2)
-6: EOF
+6. NEWLINE
+7: EOF
+
+But before you can start writing code here you need to spend time
+considering what consitutes each token. The way to think about it for
+example an identifier like a name for a function or variable name,
+if something starts with a character or even under-scores are popular
+it might be a token so you read character by character untill whitespace
+or end of file and if its a valid character you fill out a token structure
+with the string and a type of IDENTIFIER.
+
+If the token is a plus sign its a plus sign etc. If its a new line and this
+matters in python its a new line. For purposes of this book i am not going
+to implement a proper python parser we will use semi-colons to delimit statements
+and braces to encapsulated suites or blocks of code. I refer to blocks as suites as
+this is the python terminology from the grammar.txt.
 
 First we define a token type:
 
@@ -196,6 +213,7 @@ typedef enum {
 	EQUALS,
 	INTEGER,
 	PLUS,
+	NEWLINE,
 	EOF
 } TOKEN_TYPE;
 
@@ -208,8 +226,7 @@ struct token {
 }
 ```
 
-The Lexer works via regular expressions so you can define what a token
-would look like the taditional way this function is defined is:
+The normal function would look something akin to this:
 
 ```c
 struct lexer_state {
@@ -223,22 +240,20 @@ struct lexer_state lexer;
 void yylex (void) {
   while (lexer.offset < lexer.size)
   {
-	char c = lexer.buffer [lexer.offset];
+	char c = lexer.buffer [lexer.offset++];
 	
 	if (c == '=') {
 		current_token.T = EQUALS;
-		break;
+		return
 	}
 	else if (c == integer) {
 		read_integer (&lexer, &current_token);
-		break;
+		return
 	}
 	else if (c == character) {
 		read_name (..)
-		break;
+		return
 	}
-	
-	lexer.offset++;
   }
   current_token.T = EOF;
 }

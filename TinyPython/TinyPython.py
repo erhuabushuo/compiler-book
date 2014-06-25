@@ -1,20 +1,37 @@
 #!/usr/bin/env python
 
-def parse_execute (input):
-    return True
+import optparse
+import Interpreter
 
-def interactive_shell (prompt='>>> '):
+from cStringIO import StringIO
+
+def TinyShell (prompt='>>> '):
     while True:
         try:
             line = raw_input (prompt)
-            ret = parse_execute (line)
-            if ret is False:
-                break
+            buffer = StringIO (line)
+            Interpreter.evaluate (buffer)
+            buffer.close ()
         except EOFError:
             break
 
+def PrintVersion ():
+    print "TinyPython version 0.1"
+
 def TinyPython ():
-    interactive_shell ()
+    parser = optparse.OptionParser ()
+    parser.add_option ("-v", "--version", dest='version',
+                       help="Print version", action="store_true")
+    (options, args) = parser.parse_args ()
+    if options.version is True:
+        PrintVersion ()
+        return
+    if len (args) > 0:
+        for i in args:
+            with open (i, 'r') as fd:
+                Interpreter.evaluate (fd)
+    else:
+        TinyShell ()
 
 if __name__ == '__main__':
     TinyPython ()
