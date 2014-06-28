@@ -9,18 +9,24 @@ class Parser:
         self.token = self.lexer.yylex ()
 
     def backend_push (self, ast):
-        if self.backend is not None:
-            self.backend.push (ast)
-        else:
+        if self.backend is None:
             print ast
+        else:
+            self.backend.push (ast)
 
     def yyerror (self, message):
         print >>sys.stderr, "Syntax Error: %s" % message
 
-    def parse_accept (self, token, fwd=True):
-        if self.token.T == token:
-            if fwd == True:
-                self.token = self.lexer.yylex ()
+    def parse_peek (self, token):
+        if self.token.type is token:
+            return True
+        else:
+            return False
+
+    def parse_accept (self, token):
+        if self.parse_peek (token) is True:
+            # advance the token stream
+            self.token = self.lexer.yylex ()
             return True
         else:
             return False
@@ -29,8 +35,11 @@ class Parser:
         if self.parse_accept (token) is True:
             return True
         else:
-            yyerror ("expected token [%s] got [%s]" % (token, self.token))
+            self.yyerror ("expected token [%s] got [%s]" % (token, self.token))
             return False
+
+    def primary (self):
+        pass
 
     def expression (self):
         pass
@@ -38,10 +47,13 @@ class Parser:
     def print_statement (self):
         pass
 
-    def toplevel_declaration (self):
-        return self.expression ()
+    def function_declaration (self):
+        pass
 
-    def parseEval (self):
+    def toplevel_declaration (self):
+        pass
+
+    def yyparse (self):
         while self.token.type is not TokenType.EOF:
             ast = self.toplevel_declaration ()
             # syntax error just stop

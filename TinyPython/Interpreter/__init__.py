@@ -4,4 +4,4 @@ from Parser import Parser
 def evaluate (input):
     lexer = Lexer (input)
     parser = Parser (lexer)
-    parser.parseEval ()
+    parser.yyparse ()
