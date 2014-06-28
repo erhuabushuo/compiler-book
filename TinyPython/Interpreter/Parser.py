@@ -1,7 +1,9 @@
 import sys
 
+from Lexer import TokenType
+
 class Parser:
-    def __init__ (self, lexer):
+    def __init__ (self, lexer, backend = None):
         self.lexer = lexer
         self.token = None
 
@@ -25,12 +27,6 @@ class Parser:
                         self.lexer.TokenString (self.token.T)))
             return False
 
-    def toplevel_declarations (self):
-        # can be function of expression or print
-        pass
-
     def parseEval (self):
-        # kick things off with the first token
-        self.token = self.lexer.yylex ()
-        while token is not None:
-            toplevel_declarations ()
+        for i in self.lexer:
+            print i

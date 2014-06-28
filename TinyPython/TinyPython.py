@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import optparse
 import Interpreter
 
@@ -20,16 +21,18 @@ def PrintVersion ():
 
 def TinyPython ():
     parser = optparse.OptionParser ()
-    parser.add_option ("-v", "--version", dest='version',
+    parser.add_option ("-v", "--version", dest='version', default=False,
                        help="Print version", action="store_true")
     (options, args) = parser.parse_args ()
     if options.version is True:
         PrintVersion ()
         return
     if len (args) > 0:
-        for i in args:
-            with open (i, 'r') as fd:
+        try:
+            with open (args [0], 'r') as fd:
                 Interpreter.evaluate (fd)
+        except IOError:
+            print >>sys.stderr, 'Unable to open [%s]' % args [0]
     else:
         TinyShell ()
 
