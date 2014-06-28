@@ -50,33 +50,28 @@ class Lexer:
 
     def yylex (self):
         while self.c:
+            token = None
             if self.c.isdigit () is True:
                 return self.parse_number ()
             elif self.c.isalpha () is True:
                 return self.parse_name ()
             elif self.c == ';':
-                self.c = self.input.read (1)
-                return Token (TokenType.SEMICOLON)
+                token = Token (TokenType.SEMICOLON)
             elif self.c == '=':
-                self.c = self.input.read (1)
-                return Token (TokenType.EQUALS)
+                token = Token (TokenType.EQUALS)
             elif self.c == '+':
-                self.c = self.input.read (1)
-                return Token (TokenType.PLUS)
+                token = Token (TokenType.PLUS)
             elif self.c == '{':
-                self.c = self.input.read (1)
-                return Token (TokenType.LBRACE)
+                token = Token (TokenType.LBRACE)
             elif self.c == '}':
-                self.c = self.input.read (1)
-                return Token (TokenType.RBRACE)
+                token = Token (TokenType.RBRACE)
             elif self.c == ',':
-                self.c = self.input.read (1)
-                return Token (TokenType.COMMA)
+                token = Token (TokenType.COMMA)
             elif self.c == '(':
-                self.c = self.input.read (1)
-                return Token (TokenType.LBRACKET)
+                token = Token (TokenType.LBRACKET)
             elif self.c == ')':
-                self.c = self.input.read (1)
-                return Token (TokenType.RBRACKET)
+                token = Token (TokenType.RBRACKET)
             self.c = self.input.read (1)
+            if token is not None:
+                return token
         return Token (TokenType.EOF)
