@@ -5,7 +5,14 @@ from Lexer import TokenType
 class Parser:
     def __init__ (self, lexer, backend = None):
         self.lexer = lexer
-        self.token = None
+        self.backend = backend
+        self.token = self.lexer.yylex ()
+
+    def backend_push (self, ast):
+        if self.backend is not None:
+            self.backend.push (ast)
+        else:
+            print ast
 
     def yyerror (self, message):
         print >>sys.stderr, "Syntax Error: %s" % message
@@ -22,11 +29,22 @@ class Parser:
         if self.parse_accept (token) is True:
             return True
         else:
-            yyerror ("expected token [%s] got [%s]" \
-                     % (self.lexer.TokenString (token),
-                        self.lexer.TokenString (self.token.T)))
+            yyerror ("expected token [%s] got [%s]" % (token, self.token))
             return False
 
+    def expression (self):
+        pass
+
+    def print_statement (self):
+        pass
+
+    def toplevel_declaration (self):
+        return self.expression ()
+
     def parseEval (self):
-        for i in self.lexer:
-            print i
+        while self.token.type is not TokenType.EOF:
+            ast = self.toplevel_declaration ()
+            # syntax error just stop
+            if ast is None:
+                break
+            self.backend_push (ast)

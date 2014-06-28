@@ -12,16 +12,17 @@ class Token (object):
         self.type = type
 
     def __repr__ (self):
-        repr = "%s" % self.type
         try:
-            repr += " [%s]" % self.token
+            repr = "%s [%s]" % (self.type, self.token)
         except AttributeError:
-            pass
-        return repr
+            repr = "%s" % self.type
+        finally:
+            return repr
 
 class Lexer:
     def __init__ (self, input):
         self.input = input
+        self.c = self.input.read (1)
 
     def parse_number (self):
         tstring = ''
@@ -39,23 +40,43 @@ class Lexer:
             self.c = self.input.read (1)
         if tstring == 'defun':
             return Token (TokenType.KEY_DEFUN)
+        elif tstring == 'print':
+            return Token (TokenType.KEY_PRINT)
         else:
+            # if its not a reserved word then its a name
             token = Token (TokenType.NAME)
             token.token = tstring
             return token
 
-    def __iter__ (self):
-        self.c = self.input.read (1)
+    def yylex (self):
         while self.c:
             if self.c.isdigit () is True:
-                yield self.parse_number ()
-            if self.c.isalpha () is True:
-                yield self.parse_name ()
+                return self.parse_number ()
+            elif self.c.isalpha () is True:
+                return self.parse_name ()
             elif self.c == ';':
-                yield Token (TokenType.SEMICOLON)
+                self.c = self.input.read (1)
+                return Token (TokenType.SEMICOLON)
             elif self.c == '=':
-                yield Token (TokenType.EQUALS)
+                self.c = self.input.read (1)
+                return Token (TokenType.EQUALS)
             elif self.c == '+':
-                yield Token (TokenType.PLUS)
+                self.c = self.input.read (1)
+                return Token (TokenType.PLUS)
+            elif self.c == '{':
+                self.c = self.input.read (1)
+                return Token (TokenType.LBRACE)
+            elif self.c == '}':
+                self.c = self.input.read (1)
+                return Token (TokenType.RBRACE)
+            elif self.c == ',':
+                self.c = self.input.read (1)
+                return Token (TokenType.COMMA)
+            elif self.c == '(':
+                self.c = self.input.read (1)
+                return Token (TokenType.LBRACKET)
+            elif self.c == ')':
+                self.c = self.input.read (1)
+                return Token (TokenType.RBRACKET)
             self.c = self.input.read (1)
-        yield Token (TokenType.EOF)
+        return Token (TokenType.EOF)
