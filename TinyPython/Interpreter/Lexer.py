@@ -6,6 +6,11 @@ class TokenType (object):
     EOF       =  "EOF"
     EQUALS    =  "Equals"
     PLUS      =  "Plus"
+    LBRACE    =  "("
+    RBRACE    =  ")"
+    COMMA     =  ","
+    LBRACKET  =  "{"
+    RBRACKET  =  "}"
 
 class Token (object):
     def __init__ (self, type):
@@ -33,15 +38,20 @@ class Lexer:
         token.token = tstring
         return token
 
+    def reserved_word (self, token):
+        if token == 'defun':
+            return Token (TokenType.KEY_DEFUN)
+        elif token == 'print':
+            return Token (TokenType.KEY_PRINT)
+
     def parse_name (self):
         tstring = ''
         while self.c and self.c.isalpha ():
             tstring += self.c
             self.c = self.input.read (1)
-        if tstring == 'defun':
-            return Token (TokenType.KEY_DEFUN)
-        elif tstring == 'print':
-            return Token (TokenType.KEY_PRINT)
+        token = self.reserved_word (tstring)
+        if token is not None:
+            return token
         else:
             # if its not a reserved word then its a name
             token = Token (TokenType.NAME)
@@ -52,9 +62,9 @@ class Lexer:
         while self.c:
             token = None
             if self.c.isdigit () is True:
-                return self.parse_number ()
+                token = self.parse_number ()
             elif self.c.isalpha () is True:
-                return self.parse_name ()
+                token = self.parse_name ()
             elif self.c == ';':
                 token = Token (TokenType.SEMICOLON)
             elif self.c == '=':
