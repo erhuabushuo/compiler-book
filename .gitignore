@@ -1,1 +1,7 @@
 *.pyc
+CompilerBook.aux
+CompilerBook.lof
+CompilerBook.log
+CompilerBook.lot
+CompilerBook.out
+CompilerBook.toc
